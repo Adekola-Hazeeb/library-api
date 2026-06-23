@@ -33,7 +33,7 @@ class Member extends Authenticatable
     ];
 
 
-    public function tier(): BelongsTo
+    public function memberTier(): BelongsTo
     {
         return $this->belongsTo(MemberTier::class, 'member_tier_id');
     }
@@ -65,6 +65,7 @@ class Member extends Authenticatable
             ->where('is_paid', false)
             ->sum('amount');
     }
+    
 
     public function isSuspended(): bool
     {

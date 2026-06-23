@@ -19,7 +19,7 @@ class StoreLoanRequest extends FormRequest
             'book_id' => [
                 'required',
                 'integer',
-                Rule::exists('books', 'id')->where('is_retired', false),
+                Rule::exists('books', 'id')->where('is_retired', 0),
             ],
         ];
     }

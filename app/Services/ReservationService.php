@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReservationService
 {
-    /* Create a reservation for a member — FIFO queue */
-    public function createReservation(User $member, array $data): Reservation
+    public function createReservation(Member $member, array $data): Reservation
     {
         return DB::transaction(function () use ($member, $data) {
             $alreadyBorrowed = $member->loans()

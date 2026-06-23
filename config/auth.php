@@ -124,6 +124,33 @@ return [
             'throttle' => 60,
         ],
     ],
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'sanctum' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
+        /* Member guard for library members */
+        'member' => [
+            'driver' => 'sanctum',
+            'provider' => 'members',
+        ],
+    ],  
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+        /* Members provider */
+        'members' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Member::class,
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

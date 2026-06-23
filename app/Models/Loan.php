@@ -55,12 +55,12 @@ class Loan extends Model
             return 0;
         }
 
-        return (int) now()->diffInDays($this->due_date);
+        return (int) $this->due_date->diffInDays(now());
     }
 
     public function calculateFine(): float
     {
-        return $this->daysOverdue()
-            * $this->member->tier->fine_rate;
+        $member = $this->member()->with('memberTier')->first();
+        return $this->daysOverdue() * $member->memberTier->fine_rate;
     }
 }

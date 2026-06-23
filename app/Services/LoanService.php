@@ -12,12 +12,14 @@ use App\Models\Member;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 class LoanService
 {
     private const MAX_RENEWALS = 2;
-    public function createLoan(User $member, array $data): Loan
+    public function createLoan(Member $member, array $data): Loan
     {
         return DB::transaction(function () use ($member, $data) {
+            $member->load('memberTier');
             if ($member->isSuspended()) {
                 throw new MemberSuspendedException();
             }
@@ -42,14 +44,17 @@ class LoanService
             $copy = \App\Models\BookCopy::where('book_id', $data['book_id'])
                 ->where('status', 'available')
                 ->where('condition', '!=', 'damaged')
-                ->whereDoesntHave('loans', function ($q) {
-                    $q->whereHas('book.reservations', function ($q2) {
-                        $q2->where('status', 'notified')
-                            ->where('claim_expires_at', '>', now());
-                    });
-                })
                 ->first();
+
             if (!$copy) {
+                throw new BookNotAvailableException();
+            }
+            $hasActiveReservation = \App\Models\Reservation::where('book_id', $data['book_id'])
+                ->where('status', 'notified')
+                ->where('claim_expires_at', '>', now())
+                ->exists();
+
+            if ($hasActiveReservation) {
                 throw new BookNotAvailableException();
             }
             $dueDate = now()->addDays($member->memberTier->loan_period_days);
@@ -85,12 +90,14 @@ class LoanService
     public function returnLoan(Loan $loan): Loan
     {
         return DB::transaction(function () use ($loan) {
+            $fineAmount = $loan->calculateFine();
+            Log::info('Fine amount: ' . $fineAmount . ' days overdue: ' . $loan->daysOverdue());
             $loan->update([
                 'returned_at' => now(),
                 'status' => 'returned',
             ]);
             $loan->bookCopy->update(['status' => 'available']);
-            $fineAmount = $loan->calculateFine();
+
             if ($fineAmount > 0) {
                 $loan->update(['fines_accrued' => $fineAmount]);
                 Fine::create([

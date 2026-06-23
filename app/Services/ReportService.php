@@ -7,6 +7,8 @@ use App\Models\Fine;
 use App\Models\Loan;
 use App\Models\Member;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class ReportService
 {
@@ -26,7 +28,7 @@ class ReportService
             'unpaid_fines'        => Fine::where('is_paid', false)->sum('amount'),
         ];
     }
-    public function getOverdueLoans(): \Illuminate\Pagination\LengthAwarePaginator
+    public function getOverdueLoans(): LengthAwarePaginator
     {
         return Loan::query()
             ->with(['bookCopy', 'bookCopy.book', 'member'])
@@ -36,7 +38,7 @@ class ReportService
             ->paginate(15);
     }
 
-    public function getLowStock(): \Illuminate\Support\Collection
+    public function getLowStock(): Collection
     {
         return Book::query()
             ->withCount(['copies as available_copies_count' => function ($q) {
@@ -47,7 +49,7 @@ class ReportService
             ->orderBy('available_copies_count', 'asc')
             ->get();
     }
-    public function getMostBorrowed(): \Illuminate\Support\Collection
+    public function getMostBorrowed(): Collection
     {
         return Book::query()
             ->withCount('copies as loans_count')

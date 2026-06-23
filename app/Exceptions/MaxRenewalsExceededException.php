@@ -8,6 +8,6 @@ class MaxRenewalsExceededException extends Exception
 {
         public function __construct()
     {
-        parent::__construct('Maximum renewal limit reached.', 403);
+        parent::__construct('Maximum renewal limit reached.', 422);
     }
 }

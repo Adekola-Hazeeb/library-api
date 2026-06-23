@@ -6,8 +6,8 @@ use Exception;
 
 class MaxBooksExceededException extends Exception
 {
-        public function __construct()
+    public function __construct()
     {
-        parent::__construct('Loan limit reached for your membership tier.', 403);
+        parent::__construct('Loan limit reached for your membership tier.', 422);
     }
 }

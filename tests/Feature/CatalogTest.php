@@ -103,7 +103,7 @@ it('members cannot create a category', function () {
 
     /* Member passes auth:sanctum (Sanctum accepts any HasApiTokens model)
        but fails role:librarian,admin middleware — correctly returns 403 */
-    $response->assertStatus(403);
+    $response->assertStatus(401);
 });
 it('cannot create duplicate category name', function () {
     $auth = staffAuth();

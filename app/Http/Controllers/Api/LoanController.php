@@ -9,6 +9,7 @@ use App\Models\Loan;
 use App\Services\LoanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LoanController extends Controller
 {
@@ -55,6 +56,8 @@ class LoanController extends Controller
     {
         try {
             $member = auth('member')->user();
+            Log::info('Authenticated member ID: ' . $member?->id);
+            Log::info('Request book_id: ' . $request->validated()['book_id']);
 
             $loan = $this->loanService->createLoan(
                 $member,
@@ -69,7 +72,7 @@ class LoanController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $e->getCode() ?: 403);
+            ], $e->getCode() ?: 422);
         }
     }
 
@@ -86,7 +89,7 @@ class LoanController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $e->getCode() ?: 403);
+            ], $e->getCode() ?: 422);
         }
     }
 
@@ -103,7 +106,7 @@ class LoanController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $e->getCode() ?: 403);
+            ], $e->getCode() ?: 422);
         }
     }
 }

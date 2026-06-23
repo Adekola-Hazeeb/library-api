@@ -8,6 +8,6 @@ class DuplicateLoanException extends Exception
 {
         public function __construct()
     {
-        parent::__construct('Member already has an active loan for this book.', 403);
+        parent::__construct('Member already has an active loan for this book.', 422);
     }
 }

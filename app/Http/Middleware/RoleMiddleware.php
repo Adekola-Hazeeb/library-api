@@ -11,15 +11,16 @@ class RoleMiddleware
     public function handle(
         Request $request,
         Closure $next,
-        string $role
+        string ...$roles /* Accept multiple roles */
     ): Response {
-        $user = $request->user();
+        $user = $request->user('sanctum');
 
         if (!$user) {
             abort(401);
         }
 
-        if ($user->role !== $role) {
+        /* Check if user's role is in the allowed roles list */
+        if (!in_array($user->role, $roles)) {
             abort(403);
         }
 
