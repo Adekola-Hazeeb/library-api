@@ -7,6 +7,7 @@ use App\Exceptions\MaxRenewalsExceededException;
 use App\Exceptions\MemberSuspendedException;
 use App\Exceptions\UnpaidFinesException;
 use App\Models\Fine;
+use App\Models\Reservation;
 use App\Models\Loan;
 use App\Models\Member;
 use App\Models\User;
@@ -97,6 +98,21 @@ class LoanService
                 'status' => 'returned',
             ]);
             $loan->bookCopy->update(['status' => 'available']);
+
+            $bookId = $loan->bookCopy->book_id;
+
+            $nextReservation = Reservation::where('book_id', $bookId)
+                ->where('status', 'pending')
+                ->orderBy('queue_position')
+                ->first();
+
+            if ($nextReservation) {
+                $nextReservation->update([
+                    'status' => 'notified',
+                    'notified_at' => now(),
+                    'claim_expires_at' => now()->addHours(48),
+                ]);
+            }
 
             if ($fineAmount > 0) {
                 $loan->update(['fines_accrued' => $fineAmount]);
